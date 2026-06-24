@@ -59,6 +59,24 @@ Client --> api-gateway:8080/order
 
 Each hop is instrumented with OpenTelemetry spans (`process-payment`, etc.) and Prometheus metrics.
 
+### Evidence Screenshots
+
+**Request rate across all services** — `rate(http_requests_total[5m])` in VictoriaMetrics vmui:
+
+![Request Rate](vmui-request-rate.png)
+
+**P99 latency well within SLO** — `histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))`:
+
+![Latency P99](vmui-latency-p99.png)
+
+**Grafana Service Health dashboard** — request rate, error rate, and latency panels:
+
+![Service Health](grafana-service-health.png)
+
+**Grafana SLO Overview dashboard** — burn rate and error budget:
+
+![SLO Overview](grafana-slo-overview.png)
+
 ### Key Metrics at Baseline
 
 | Metric | Value | Description |
