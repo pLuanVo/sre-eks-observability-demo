@@ -67,10 +67,6 @@ This opens 70 raw `psycopg2.connect()` connections that are stored in `chaos_con
 
 ## Evidence from Live Test
 
-**VictoriaMetrics vmui showing PG connection spike** — `pg_stat_activity_count` metric during flood:
-
-![PG Connections Spike](vmui-pg-connections-spike.png)
-
 ### Connection Flood
 
 ```
