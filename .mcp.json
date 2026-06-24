@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "sre-observability": {
+      "command": "python",
+      "args": ["mcp-server/server.py"],
+      "env": {
+        "VM_URL": "http://localhost:8429",
+        "GRAFANA_URL": "http://localhost:3000",
+        "PG_HOST": "localhost",
+        "PG_PORT": "5432",
+        "PG_USER": "sreadmin",
+        "PG_PASSWORD": "",
+        "PG_DATABASE": "sre_demo",
+        "K8S_NAMESPACE": "demo",
+        "RUNBOOK_DIR": "sre/runbooks",
+        "WEBHOOK_URL": "http://localhost:9095/webhook"
+      }
+    }
+  }
+}

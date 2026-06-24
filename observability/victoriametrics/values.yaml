@@ -1,0 +1,26 @@
+# Helm values for victoria-metrics-operator
+# helm repo add vm https://victoriametrics.github.io/helm-charts/
+# helm install vmoperator vm/victoria-metrics-operator -n observability -f vmoperator-values.yaml
+
+operator:
+  enable_converter_ownership: true
+
+admissionWebhooks:
+  enabled: true
+
+serviceMonitor:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+# CRDs are managed by the chart
+createCRD: true
+
+defaultLabels:
+  app.kubernetes.io/part-of: sre-demo

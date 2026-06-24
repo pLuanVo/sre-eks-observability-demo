@@ -1,0 +1,58 @@
+# Helm values for Vector
+# helm repo add vector https://helm.vector.dev
+# helm install vector vector/vector -n observability -f vector-values.yaml
+
+role: Agent
+
+customConfig:
+  data_dir: /vector-data-dir
+
+  sources:
+    kubernetes_logs:
+      type: kubernetes_logs
+      extra_namespace_label_selector: "kubernetes.io/metadata.name=demo"
+
+  transforms:
+    parse_json:
+      type: remap
+      inputs:
+        - kubernetes_logs
+      source: |
+        parsed, err = parse_json(.message)
+        if err == null {
+          .level = string(get(parsed, ["level"]) ?? "info") ?? "info"
+          .service = string(get(parsed, ["service"]) ?? "unknown") ?? "unknown"
+          .log_message = string(get(parsed, ["message"]) ?? .message) ?? .message
+        } else {
+          .level = "info"
+          .service = "unknown"
+          .log_message = .message
+        }
+        .k8s_namespace = .kubernetes.pod_namespace
+        .k8s_pod = .kubernetes.pod_name
+        .k8s_container = .kubernetes.container_name
+
+  sinks:
+    console_out:
+      type: console
+      inputs:
+        - parse_json
+      encoding:
+        codec: json
+
+podLabels:
+  app.kubernetes.io/part-of: sre-demo
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+tolerations:
+  - operator: Exists
+
+service:
+  enabled: false

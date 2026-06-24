@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: demo
+
+commonLabels:
+  app.kubernetes.io/part-of: sre-demo
+
+resources:
+  - namespace.yaml
+  - service-account.yaml
+  - security/network-policy.yaml
+  - security/rbac.yaml
+  - db-secret.yaml
+  - db-init-job.yaml
+  - apps/api-gateway/deployment.yaml
+  - apps/api-gateway/service.yaml
+  - apps/api-gateway/hpa.yaml
+  - apps/api-gateway/pdb.yaml
+  - apps/order-service/deployment.yaml
+  - apps/order-service/service.yaml
+  - apps/order-service/hpa.yaml
+  - apps/order-service/pdb.yaml
+  - apps/payment-service/deployment.yaml
+  - apps/payment-service/service.yaml
+  - apps/payment-service/hpa.yaml
+  - apps/payment-service/pdb.yaml
+  - apps/mcp-server/deployment.yaml
+  - apps/mcp-server/service.yaml

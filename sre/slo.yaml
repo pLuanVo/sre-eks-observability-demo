@@ -1,0 +1,25 @@
+slos:
+  - name: availability
+    description: Percentage of successful (non-5xx) requests
+    target: 99.5%
+    window: 30d
+    error_budget: 0.5%
+    burn_rate_thresholds:
+      p1_critical: 14.4  # exhausts budget in ~2 days
+      p2_warning: 6.0    # exhausts budget in ~5 days
+    sli_query: |
+      1 - (sum(rate(http_requests_total{code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])))
+
+  - name: latency
+    description: 99th percentile request duration
+    target: "p99 < 500ms"
+    window: 30d
+    sli_query: |
+      histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))
+
+  - name: pg_availability
+    description: PostgreSQL connection success rate
+    target: 99.9%
+    window: 30d
+    sli_query: |
+      1 - (pg_stat_activity_count{state="idle in transaction"} / pg_settings_max_connections)

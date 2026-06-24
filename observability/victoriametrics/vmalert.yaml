@@ -1,0 +1,30 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlert
+metadata:
+  name: vmalert
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: vmalert
+    app.kubernetes.io/part-of: sre-demo
+spec:
+  replicaCount: 1
+  datasource:
+    url: "http://vmsingle-victoria-metrics.observability:8429"
+  remoteWrite:
+    url: "http://vmsingle-victoria-metrics.observability:8429"
+  remoteRead:
+    url: "http://vmsingle-victoria-metrics.observability:8429"
+  notifier:
+    url: "http://vmalertmanager-alertmanager.observability:9093"
+  rulePath:
+    - /etc/vmalert/rules/*.yaml
+  ruleSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: sre-demo
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

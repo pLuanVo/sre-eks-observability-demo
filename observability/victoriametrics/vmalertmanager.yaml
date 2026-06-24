@@ -1,0 +1,36 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlertmanager
+metadata:
+  name: alertmanager
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: vmalertmanager
+    app.kubernetes.io/part-of: sre-demo
+spec:
+  replicaCount: 1
+  configRawYaml: |
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: mcp-webhook
+      group_by: ['alertname', 'namespace', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - receiver: mcp-webhook
+          matchers:
+            - severity=~"critical|warning"
+    receivers:
+      - name: mcp-webhook
+        webhook_configs:
+          - url: "http://mcp-server.demo:8091/webhook"
+            send_resolved: true
+            max_alerts: 10
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

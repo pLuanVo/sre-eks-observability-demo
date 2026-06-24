@@ -1,0 +1,110 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: alerts
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: alerts
+    app.kubernetes.io/part-of: sre-demo
+spec:
+  groups:
+    - name: slo_burn_rate
+      rules:
+        # Critical: 14.4x burn rate over 5m AND 1h windows
+        # At this rate, the entire 30-day error budget is consumed in ~2 days
+        - alert: SLOBurnRateCritical
+          expr: |
+            sli:error_budget_burn:rate5m > 14.4
+            and
+            sli:error_budget_burn:rate1h > 14.4
+          for: 2m
+          labels:
+            severity: critical
+            team: sre
+          annotations:
+            summary: "SLO burn rate critical for {{ $labels.service }}"
+            description: >-
+              Service {{ $labels.service }} is burning error budget at
+              {{ $value | printf "%.1f" }}x the allowed rate.
+              At this pace the entire monthly budget is consumed in ~2 days.
+            runbook_url: "https://github.com/pLuanVo/sre-eks-observability-demo/tree/main/sre/runbooks"
+
+        # Warning: 6x burn rate over 30m AND 6h windows
+        # At this rate, the entire 30-day error budget is consumed in ~5 days
+        - alert: SLOBurnRateWarning
+          expr: |
+            sli:error_budget_burn:rate30m > 6
+            and
+            sli:error_budget_burn:rate6h > 6
+          for: 5m
+          labels:
+            severity: warning
+            team: sre
+          annotations:
+            summary: "SLO burn rate warning for {{ $labels.service }}"
+            description: >-
+              Service {{ $labels.service }} is burning error budget at
+              {{ $value | printf "%.1f" }}x the allowed rate.
+              At this pace the entire monthly budget is consumed in ~5 days.
+            runbook_url: "https://github.com/pLuanVo/sre-eks-observability-demo/tree/main/sre/runbooks"
+
+    - name: kubernetes
+      rules:
+        - alert: PodCrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="demo"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: critical
+            team: sre
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash-looping"
+            description: >-
+              Container {{ $labels.container }} in pod {{ $labels.pod }}
+              has restarted {{ $value | printf "%.0f" }} times in the last 15 minutes.
+
+    - name: postgresql
+      rules:
+        - alert: PostgreSQLConnectionsNearLimit
+          expr: |
+            sum(pg_stat_activity_connections) by (usename)
+            /
+            pg_settings_max_connections > 0.8
+          for: 5m
+          labels:
+            severity: warning
+            team: sre
+          annotations:
+            summary: "PostgreSQL connections above 80% of max_connections"
+            description: >-
+              Current connection usage is at {{ $value | printf "%.0f" }}%
+              of max_connections. Investigate connection leaks or increase pool size.
+
+        - alert: PostgreSQLSlowQueries
+          expr: |
+            pg_stat_statements_mean_time_ms > 1000
+          for: 5m
+          labels:
+            severity: warning
+            team: sre
+          annotations:
+            summary: "PostgreSQL slow queries detected"
+            description: >-
+              Query ID {{ $labels.queryid }} has a mean execution time of
+              {{ $value | printf "%.0f" }}ms, exceeding the 1s threshold.
+
+    - name: otel_collector
+      rules:
+        - alert: OTelCollectorDroppedSpans
+          expr: |
+            rate(otelcol_exporter_send_failed_spans_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+            team: sre
+          annotations:
+            summary: "OpenTelemetry Collector is dropping spans"
+            description: >-
+              The OTel Collector is failing to export spans at a rate of
+              {{ $value | printf "%.2f" }}/s. Check exporter configuration
+              and downstream service availability.

@@ -1,0 +1,81 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: vmagent
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: vmagent
+    app.kubernetes.io/part-of: sre-demo
+spec:
+  scrapeInterval: "15s"
+  replicaCount: 1
+  remoteWrite:
+    - url: "http://vmsingle-victoria-metrics.observability:8429/api/v1/write"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  inlineScrapeConfig: |
+    # Scrape demo namespace pods with prometheus.io annotations
+    - job_name: "demo-pods"
+      kubernetes_sd_configs:
+        - role: pod
+          namespaces:
+            names:
+              - demo
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: "true"
+        - source_labels:
+            - __meta_kubernetes_pod_ip
+            - __meta_kubernetes_pod_annotation_prometheus_io_port
+          action: replace
+          target_label: __address__
+          regex: "(.+);(.+)"
+          replacement: "${1}:${2}"
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod
+
+    # Scrape postgres-exporter
+    - job_name: "postgres-exporter"
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - demo
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          action: keep
+          regex: postgres-exporter
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: metrics
+
+    # Scrape kube-state-metrics
+    - job_name: "kube-state-metrics"
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - observability
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_name]
+          action: keep
+          regex: kube-state-metrics
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: http

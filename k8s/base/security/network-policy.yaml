@@ -1,0 +1,67 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: demo-allow-observability
+  namespace: demo
+  labels:
+    app.kubernetes.io/part-of: sre-demo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: sre-demo
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic within demo namespace
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: sre-demo
+    # Allow scraping from observability namespace (VMAgent, Prometheus)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8081
+        - protocol: TCP
+          port: 8082
+        - protocol: TCP
+          port: 8090
+        - protocol: TCP
+          port: 8091
+        - protocol: TCP
+          port: 9187
+  egress:
+    # Allow all egress from demo pods (DNS, RDS, otel-collector, etc.)
+    - {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: observability-allow-demo
+  namespace: observability
+  labels:
+    app.kubernetes.io/part-of: sre-demo
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow demo namespace to push metrics/traces to otel-collector
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: demo
+      ports:
+        - protocol: TCP
+          port: 4317
+        - protocol: TCP
+          port: 4318
+    # Allow within observability namespace
+    - from:
+        - podSelector: {}

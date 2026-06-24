@@ -1,0 +1,6 @@
+mcp[cli]>=1.0.0
+requests>=2.32.0
+kubernetes>=31.0.0
+psycopg2-binary>=2.9.10
+pyyaml>=6.0
+flask>=3.1.0

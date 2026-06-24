@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+node_modules/
+*.tar
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.drawio
+*.pem
+*.key
+
+# Pulumi local state
+infra/venv/
+infra/Pulumi.dev.yaml
+infra/Pulumi.*.yaml.bak
+
+# Claude Code (local only — never push to demo repo)
+CLAUDE.md
+.claude/

@@ -1,0 +1,36 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: demo-app-role
+  namespace: demo
+  labels:
+    app.kubernetes.io/part-of: sre-demo
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: demo-app-binding
+  namespace: demo
+  labels:
+    app.kubernetes.io/part-of: sre-demo
+subjects:
+  - kind: ServiceAccount
+    name: demo-app
+    namespace: demo
+roleRef:
+  kind: Role
+  name: demo-app-role
+  apiGroup: rbac.authorization.k8s.io

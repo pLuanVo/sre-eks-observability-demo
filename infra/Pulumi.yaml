@@ -1,0 +1,6 @@
+name: sre-eks-observability
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: AWS EKS SRE Observability Platform — VictoriaMetrics, OTel, Vector, PostgreSQL

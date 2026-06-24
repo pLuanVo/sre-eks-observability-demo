@@ -1,0 +1,53 @@
+# Error Budget Policy — defines actions when SLO error budgets are consumed.
+# Based on Google SRE Workbook Chapter 4: Implementing SLOs.
+
+policies:
+  - slo: availability
+    target: 99.5%
+    window: 30d
+    budget: 0.5%
+
+    thresholds:
+      - consumed: 50%
+        action: review
+        description: >-
+          Review recent incidents and deployments. No change freeze required.
+          Increase monitoring on affected services.
+
+      - consumed: 75%
+        action: slow_down
+        description: >-
+          Reduce deployment frequency. All changes require explicit SRE review.
+          Prioritize reliability fixes over feature work.
+
+      - consumed: 100%
+        action: freeze
+        description: >-
+          Feature freeze — only reliability improvements and critical security
+          patches may be deployed. Postmortem required for every incident that
+          consumed budget. Resume normal operations when budget replenishes
+          (rolling window).
+
+    escalation:
+      budget_owner: sre-team
+      notification_channel: "#sre-alerts"
+      review_cadence: weekly
+
+  - slo: latency
+    target: "p99 < 500ms"
+    window: 30d
+    budget: 0.5%
+
+    thresholds:
+      - consumed: 75%
+        action: investigate
+        description: >-
+          Profile top-10 slow endpoints. Review database query plans.
+          Check for resource contention or noisy-neighbor effects.
+
+      - consumed: 100%
+        action: optimize
+        description: >-
+          Mandatory performance review. Add caching, optimize queries,
+          or scale horizontally. No new latency-adding features until
+          p99 is back under target.
