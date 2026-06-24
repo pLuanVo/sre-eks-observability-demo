@@ -143,6 +143,16 @@ def _run_kubectl(args):
 _run_kubectl(f"rollout undo deployment/{target} -n {ns}")
 ```
 
+## Evidence Screenshots
+
+**During crash** — payment-service pods enter CrashLoopBackOff, restart count climbs:
+
+![Pods Crashing](vmui-pods-crashing.png)
+
+**After rollback** — L1 auto-remediation rolls back to previous revision, pods recover:
+
+![Pods Recovered](vmui-pods-recovered.png)
+
 ## Alert Rule Details
 
 From `observability/rules/alerts.yaml`:

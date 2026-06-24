@@ -112,6 +112,18 @@ The runbook guides the human SRE through systematic triage:
 4. Check PostgreSQL query latency (`pg_stat_statements`)
 5. Check resource utilization (`kubectl top pods`)
 
+## Evidence Screenshots
+
+**During injection** — p99 latency spikes above 2s across the request chain:
+
+![Latency Spike - vmui](vmui-latency-spike.png)
+
+![Latency Spike - Grafana](grafana-latency-spike.png)
+
+**After resolution** — latency returns to baseline (<100ms p99) after chaos reset:
+
+![Latency Resolved](vmui-latency-resolved.png)
+
 ## Reset
 
 ```bash

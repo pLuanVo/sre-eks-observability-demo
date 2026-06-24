@@ -123,6 +123,20 @@ The runbook provides a structured triage path:
 4. Check pod health (`kubectl describe pod`)
 5. Check application logs for error patterns (`kubectl logs`)
 
+## Evidence Screenshots
+
+**During injection** — 30% error rate visible across metrics:
+
+![Error Spike - vmui](vmui-error-spike.png)
+
+![Error Rate SLI](vmui-error-rate-sli.png)
+
+![Error Spike - Grafana](grafana-error-spike.png)
+
+**After resolution** — error rate returns to 0% after chaos reset:
+
+![Error Resolved](vmui-error-resolved.png)
+
 ## Reset
 
 ```bash

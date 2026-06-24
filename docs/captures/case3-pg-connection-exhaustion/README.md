@@ -135,6 +135,18 @@ def _pg_kill_idle():
     return f"Terminated {terminated} idle-in-transaction connections (>5 min)"
 ```
 
+## Evidence Screenshots
+
+**During flood** — connection count spikes to ~80 of 100 max_connections:
+
+![PG Connections Flood - vmui](vmui-pg-connections-flood.png)
+
+![PG Connections Flood - Grafana](grafana-pg-connections-flood.png)
+
+**After resolution** — connections drop back to baseline after L1 auto-remediation:
+
+![PG Connections Resolved](vmui-pg-connections-resolved.png)
+
 ## Reset
 
 The flood connections are terminated by the L1 auto-remediation. For manual cleanup:

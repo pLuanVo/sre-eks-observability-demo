@@ -69,6 +69,10 @@ Each hop is instrumented with OpenTelemetry spans (`process-payment`, etc.) and 
 
 ![Latency P99](vmui-latency-p99.png)
 
+**SLI availability at 100%** — `sli:availability:rate5m` recording rule confirms zero errors:
+
+![SLI Availability](vmui-sli-availability.png)
+
 **Grafana Service Health dashboard** — request rate, error rate, and latency panels:
 
 ![Service Health](grafana-service-health.png)
@@ -76,6 +80,10 @@ Each hop is instrumented with OpenTelemetry spans (`process-payment`, etc.) and 
 **Grafana SLO Overview dashboard** — burn rate and error budget:
 
 ![SLO Overview](grafana-slo-overview.png)
+
+**Grafana PostgreSQL Overview dashboard** — connection count, query stats, and table activity:
+
+![PostgreSQL Overview](grafana-postgresql.png)
 
 ### Key Metrics at Baseline
 
